@@ -1,6 +1,6 @@
 from constants import Building_Type
 
-class Buildings:
+class Building:
     
     def __init__(self, id: str, type: Building_Type) -> None:
         self.id = id
