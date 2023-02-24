@@ -14,7 +14,7 @@ class Employee_Type(Enum):
     INSTALLER_PENDING_CERTIFICATION = 2
     LABORER = 3
 
-class Weekdays(Enum):
+class Weekday(Enum):
     Monday = 1
     Tuesday = 2
     Wednesday = 3
