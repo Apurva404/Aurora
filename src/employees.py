@@ -1,4 +1,4 @@
-from constants import Employee_Type, Weekday, Certification_Status
+from constants import Weekday, Certification_Status
 from typing import Dict
 
 class Employee:
