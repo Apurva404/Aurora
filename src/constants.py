@@ -25,6 +25,6 @@ class Weekday(Enum):
 Building_Resource_Requirement_Map = {
     Building_Type.SINGLE_STORY : [(CertifiedSolarInstaller, 1)],
     Building_Type.DOUBLE_STORY : [(CertifiedSolarInstaller, 1), (UncertifiedSolarInstaller, 1)],
-    Building_Type.COMMERCIAL: [(CertifiedSolarInstaller, 2),(Apprentice, 4), (Employee, 4) ],
+    Building_Type.COMMERCIAL: [(CertifiedSolarInstaller, 2),(Apprentice, 4), (Employee, 4)],
 }
 
