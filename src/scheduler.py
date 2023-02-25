@@ -89,7 +89,11 @@ def generate_building_workday_assignment(
         buildings: List[Building], 
         weekly_capacity: Dict[Weekday, Capacity]
         ) -> Tuple[Dict[Weekday, Dict[Building, Capacity]], List[Building]]:
-    
+    """Assign buildings to workday and compute their requirement.
+
+    Process each building and assign it a workday, as well as record the type of
+    employees required to complete the job.
+    """
     scheduled_buildings = {
         Weekday.Monday: {},
         Weekday.Tuesday: {},
@@ -206,7 +210,13 @@ def assign_workers_to_building(
         scheduled_buildings: Dict[Weekday, Dict[Building, Capacity]],
         weekly_employee_availability: Dict[Weekday, Dict[type[Employee], List[Employee]]]
         ) -> Dict[Weekday, Dict[Building, List[Employee]]]:
+    """Assign individual employee to a building.
     
+    Since buildings have already been assigned to workdays and it is guaranteed that
+    the company has enough resources to handle the building on that day, we can 
+    safely assign the right class of employee in a first come first serve basis to the
+    buildings without the fear of overbooking.
+    """
     work_schedule = {
         Weekday.Monday: {},
         Weekday.Tuesday: {},
