@@ -16,10 +16,12 @@ As a result, we employed an optimization that whenever we have a choice between 
 Some of the criteria in the specification mentions that multiple roles could fill a requirement. To model these floating requirements, we used inheritence. And a result, we have classified all employees as certified/non-certified. Further more non-certified employees can be pending certification installer / laborer. This inheritence + the hardcoded logic to choose the employee type with least priority to fill a floating role can be seen in action in scheduler.py line 129, 149.
 
 
-Tests:
+Tests
+-----
 We have added few tests that showcases the correctness of the solution in the most common scenarios, as well as some edge cases where this simple algorithm won't be able to find an optimal solution. Additionally, the last test case showcases, how we can tweak the input to priortize certain kind of resource heavy buildings to still get a workable schedule.
 
-How to run:
+How to run
+----------
 ```
 >python3 test.py 
 ```
