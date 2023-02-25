@@ -11,19 +11,20 @@ It should be noticed that the various class of employees have a hierarchy built 
 
 certified installers > pending certification installers > laborers
 
-As a result, we employed an optimization that whenever we have a choice between laborer, pending certification installer or certified installer, we always choose the lowest priorirty person that fits the bill.
+As a result, I have employed an optimization that whenever we have a choice between laborer, pending certification installer or certified installer, I always choose the lowest priorirty person that fits the bill.
 
-Some of the criteria in the specification mentions that multiple roles could fill a requirement. To model these floating requirements, we used inheritence. And a result, we have classified all employees as certified/non-certified. Further more non-certified employees can be pending certification installer / laborer. This inheritence + the hardcoded logic to choose the employee type with least priority to fill a floating role can be seen in action in scheduler.py line 129, 149.
+Some of the criteria in the specification mentions that multiple roles could fill a requirement. To model these floating requirements, I have used inheritence. And a result, we have classified all employees as certified/non-certified. Further more non-certified employees can be pending certification installer / laborer. This inheritence + the hardcoded logic to choose the employee type with least priority to fill a floating role can be seen in action in the scheduler.py line 129, 149.
 
 
 Tests
 -----
-We have added few tests that showcases the correctness of the solution in the most common scenarios, as well as some edge cases where this simple algorithm won't be able to find an optimal solution. Additionally, the last test case showcases, how we can tweak the input to priortize certain kind of resource heavy buildings to still get a workable schedule.
+I have added few tests that showcases the correctness of the solution in the most common scenarios, as well as some edge cases where this simple algorithm won't be able to find an optimal solution. Additionally, the last test case showcases, how we can tweak the input to priortize certain kind of resource heavy buildings to still get a workable schedule.
 
 How to run
 ----------
+Run the following command from the root of the porject (not from within src folder!!)
 ```
->python3 test.py 
+>python3 src/test.py 
 ```
 will run all the tests and print out the schedule in a human readable format.
 However the core scheduling engine is separate from the test file, and can be easily integrated in other piece of code that wants to handle the output in a different way (say write to file or print on paper).
