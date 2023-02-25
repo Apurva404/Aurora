@@ -199,7 +199,8 @@ def generate_building_workday_assignment(
                 # assign buiding to current day and record required
                 # employee distribution
                 scheduled_buildings[day][building] = booked_capacity
-                break
+                # process next building
+                break 
             else:
                 # return all booked resources and try the next available day
                 weekly_capacity[day].increase_certified_installer_capcity_by(
