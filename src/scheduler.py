@@ -1,70 +1,260 @@
-from buildings import Building
-from employees import Employee, CertifiedSolarInstaller, Apprentice, UncertifiedSolarInstaller
-from constants import Building_Type, Weekday
+from typing import Dict, List, Tuple
 
-from typing import Dict, List
-
-BUILDING_RESOURCE_REQUIREMENT_MAP = {
-    Building_Type.SINGLE_STORY : [(CertifiedSolarInstaller, 1)],
-    Building_Type.DOUBLE_STORY : [(CertifiedSolarInstaller, 1), (UncertifiedSolarInstaller, 1)],
-    Building_Type.COMMERCIAL: [(CertifiedSolarInstaller, 2),(Apprentice, 4), (Employee, 4)],
-}
+from building_requirement import BUILDING_RESOURCE_REQUIREMENT_MAP
+from constants import BuildingType, Weekday
+from model.buildings import Building
+from model.capacity import Capacity
+from model.employees import Employee, CertifiedSolarInstaller, UncertifiedEmployee, PendingCertificationSolarInstaller, Laborer
 
 
-def scheduler(buildings: List[Building], employees: List[Employee])-> Dict:
-    work_schedule = {
+def get_weekly_worker_availability(employees: List[Employee]) -> Dict[Weekday, Dict[type[Employee], List[Employee]]]:
+    """Compute worker availability.
+
+    Arrange the data present in individual employee's availibility into
+    a map across which provides easy access to the data, which employees
+    are available on a given day. The data is also categorized by employee
+    type.
+    """
+    available_workers = {
+        Weekday.Monday: {
+            CertifiedSolarInstaller:[],
+            PendingCertificationSolarInstaller:[],
+            Laborer:[]
+        },
+        Weekday.Tuesday: {
+            CertifiedSolarInstaller:[],
+            PendingCertificationSolarInstaller:[],
+            Laborer:[]
+        },
+        Weekday.Wednesday: {
+            CertifiedSolarInstaller:[],
+            PendingCertificationSolarInstaller:[],
+            Laborer:[]
+        },
+        Weekday.Thursday: {
+            CertifiedSolarInstaller:[],
+            PendingCertificationSolarInstaller:[],
+            Laborer:[]
+        },
+        Weekday.Friday: {
+            CertifiedSolarInstaller:[],
+            PendingCertificationSolarInstaller:[],
+            Laborer:[]
+        }
+    }
+
+    for employee in employees:
+        emp_availability = employee.getAvailability()
+        for day in Weekday:
+            if emp_availability[day]:
+                available_workers[day][type(employee)].append(employee)
+    
+    return available_workers
+
+
+def get_weekly_worker_capacity(
+        worker_availibility : Dict[Weekday, Dict[type[Employee], List[Employee]]]
+        ) -> Dict[Weekday, Capacity]:
+    """Compute available worker in a week.
+    
+    Transform the worker availibility data into capacity of man power
+    available per day of the week
+    """
+    weekly_capacity = {
+        Weekday.Monday: Capacity(),
+        Weekday.Tuesday: Capacity(),
+        Weekday.Wednesday: Capacity(),
+        Weekday.Thursday: Capacity(),
+        Weekday.Friday: Capacity()
+    }
+
+    for day in Weekday:
+        weekly_capacity[day].set_certified_installer_capcity(
+            # 1 since assumption is each worker is booked for the entire day
+            len(worker_availibility[day][CertifiedSolarInstaller]) * 1
+        )
+        weekly_capacity[day].set_pending_cert_installer_capcity(
+            # 1 since assumption is each worker is booked for the entire day
+            len(worker_availibility[day][PendingCertificationSolarInstaller]) * 1
+        )
+        weekly_capacity[day].set_laborer_capcity(
+            # 1 since assumption is each worker is booked for the entire day
+            len(worker_availibility[day][Laborer]) * 1
+        )
+
+    return weekly_capacity
+
+
+def generate_building_workday_assignment(
+        buildings: List[Building], 
+        weekly_capacity: Dict[Weekday, Capacity]
+        ) -> Tuple[Dict[Weekday, Dict[Building, Capacity]], List[Building]]:
+    
+    scheduled_buildings = {
         Weekday.Monday: {},
         Weekday.Tuesday: {},
         Weekday.Wednesday: {},
         Weekday.Thursday: {},
         Weekday.Friday: {},
     }
-    # base case
-    if len(buildings) == 0 or len(employees) == 0:
-        return work_schedule
+
+    unschedulable_buildings = []
+
+    for building in buildings:
+        requirements = BUILDING_RESOURCE_REQUIREMENT_MAP.get(building.get_building_type())
+        for day in Weekday:
+            schedulable = True
+            booked_capacity = Capacity()
+            for requirement in requirements:
+                requirement_type = requirement[0]
+                required_quantity = requirement[1]
+                if requirement_type == CertifiedSolarInstaller:
+                    # If possible satisfy requirement
+                    if required_quantity <= weekly_capacity[day].get_certified_installer_capcity():
+                        booked_capacity.increase_certified_installer_capcity_by(required_quantity)
+                        weekly_capacity[day].decrease_certified_installer_capcity_by(required_quantity)
+                        continue
+                    # else can't meet requirement, try next day
+                    schedulable = False
+                    break
+                elif requirement_type == PendingCertificationSolarInstaller:
+                    # If possible satisfy requirement
+                    if required_quantity <= weekly_capacity[day].get_pending_cert_installer_capcity():
+                        booked_capacity.increase_pending_cert_installer_capcity_by(required_quantity)
+                        weekly_capacity[day].decrease_pending_cert_installer_capcity_by(required_quantity)
+                        continue
+                    # else can't meet requirement, try next day
+                    schedulable = False
+                    break
+                elif requirement_type == UncertifiedEmployee:
+                    # Choose first the resource which is more flexible
+                    # if possible satisfy requirement with only laborers
+                    if required_quantity <= weekly_capacity[day].get_laborer_capcity():
+                        booked_capacity.increase_laborer_capcity_by(required_quantity)
+                        weekly_capacity[day].decrease_laborer_capcity_by(required_quantity)
+                        continue
+                    # otherwise pick as many laborer as possible
+                    booked_capacity.increase_laborer_capcity_by(weekly_capacity[day].get_laborer_capcity())
+                    required_quantity = required_quantity - weekly_capacity[day].get_laborer_capcity()
+                    weekly_capacity[day].set_laborer_capcity(0)
+
+                    # fill the rest with pending certs
+                    if required_quantity <= weekly_capacity[day].get_pending_cert_installer_capcity():
+                        booked_capacity.increase_pending_cert_installer_capcity_by(required_quantity)
+                        weekly_capacity[day].decrease_pending_cert_installer_capcity_by(required_quantity)
+                        continue
+                    # else can't meet requirement, try next day
+                    schedulable = False
+                    break
+                elif requirement_type == Employee:
+                    # Choose first the resource which is more flexible
+                    # if possible satisfy requirement with only laborers
+                    if required_quantity <= weekly_capacity[day].get_laborer_capcity():
+                        booked_capacity.increase_laborer_capcity_by(required_quantity)
+                        weekly_capacity[day].decrease_laborer_capcity_by(required_quantity)
+                        continue
+                    # otherwise pick as many laborer as possible
+                    remaining_laborer = weekly_capacity[day].get_laborer_capcity()
+                    booked_capacity.increase_laborer_capcity_by(remaining_laborer)
+                    required_quantity = required_quantity - remaining_laborer
+                    weekly_capacity[day].set_laborer_capcity(0)
+
+                    #if possible satisfy remaining requirement with only pending certs
+                    if required_quantity <= weekly_capacity[day].get_pending_cert_installer_capcity():
+                        booked_capacity.increase_pending_cert_installer_capcity_by(required_quantity)
+                        weekly_capacity[day].decrease_pending_cert_installer_capcity_by(required_quantity)
+                        continue
+                    # otherwise pick as many pending certs as possible 
+                    remaining_pending_certs = weekly_capacity[day].get_pending_cert_installer_capcity()
+                    booked_capacity.increase_pending_cert_installer_capcity_by(remaining_pending_certs)
+                    required_quantity = required_quantity - remaining_pending_certs
+                    weekly_capacity[day].set_pending_cert_installer_capcity(0)
+
+                    # fill the rest with certs
+                    if required_quantity <= weekly_capacity[day].get_certified_installer_capcity():
+                        booked_capacity.increase_certified_installer_capcity_by(required_quantity)
+                        weekly_capacity[day].decrease_certified_installer_capcity_by(required_quantity)
+                        continue
+                
+                    # else can't meet requirement, try next day
+                    schedulable = False
+                    break
+            
+            if schedulable:
+                # assign buiding to current day and record required employee distribution 
+                scheduled_buildings[day][building] = booked_capacity
+                break
+            else:
+                # return all booked resources and try the next available day
+                weekly_capacity[day].increase_certified_installer_capcity_by(
+                    booked_capacity.get_certified_installer_capcity()
+                )
+                weekly_capacity[day].increase_pending_cert_installer_capcity_by(
+                    booked_capacity.get_pending_cert_installer_capcity()
+                )
+                weekly_capacity[day].increase_laborer_capcity_by(
+                    booked_capacity.get_laborer_capcity()
+                )
+        
+        if not schedulable:
+            unschedulable_buildings.append(building)
+
+    return scheduled_buildings, unschedulable_buildings
+
+
+def assign_workers_to_building(
+        scheduled_buildings: Dict[Weekday, Dict[Building, Capacity]],
+        weekly_employee_availability: Dict[Weekday, Dict[type[Employee], List[Employee]]]
+        ) -> Dict[Weekday, Dict[Building, List[Employee]]]:
     
+    work_schedule = {
+        Weekday.Monday: {},
+        Weekday.Tuesday: {},
+        Weekday.Wednesday: {},
+        Weekday.Thursday: {},
+        Weekday.Friday: {}
+    }
+
     for day in Weekday:
-        print(day)
-        for building in buildings:
-            bd_type = building.getType()
-            resrc_list = BUILDING_RESOURCE_REQUIREMENT_MAP.get(bd_type)
-            # print(resrc_list)
-            for resrc in resrc_list:
-                # print(resrc[0])
-                for employee in employees:
-                    emp_availability = employee.getAvailability()
-                    if resrc[0] == type(employee) and emp_availability[day]:
-                        work_schedule[day] = (building.id, employee.id)
+        day_schedule = scheduled_buildings[day]
+        for building, requirement in day_schedule.items():
+            num_certs = requirement.get_certified_installer_capcity()
+            num_pending_certs = requirement.get_pending_cert_installer_capcity()
+            num_laborer = requirement.get_laborer_capcity()
+
+            if building not in work_schedule[day]:
+                work_schedule[day][building] = []
+
+            # since the building capacity has already been planned,
+            # we can safely assign the correct type of installer to this building
+            # and remove them from the availibility map
+            certs_to_assign = weekly_employee_availability[day][CertifiedSolarInstaller][0:num_certs]
+            weekly_employee_availability[day][CertifiedSolarInstaller] = weekly_employee_availability[day][CertifiedSolarInstaller][num_certs:]
+            work_schedule[day][building] = work_schedule[day][building] + certs_to_assign
+            
+            pending_certs_to_assign = weekly_employee_availability[day][PendingCertificationSolarInstaller][0:num_pending_certs]
+            weekly_employee_availability[day][PendingCertificationSolarInstaller] = weekly_employee_availability[day][PendingCertificationSolarInstaller][num_pending_certs:]
+            work_schedule[day][building] = work_schedule[day][building] + pending_certs_to_assign
+
+            laborers_to_assign = weekly_employee_availability[day][Laborer][0:num_laborer]
+            weekly_employee_availability[day][Laborer] = weekly_employee_availability[day][Laborer][num_laborer:]
+            work_schedule[day][building] = work_schedule[day][building] + laborers_to_assign
+
     return work_schedule
 
 
-if __name__ == "__main__":
+def schedule(buildings: List[Building], employees: List[Employee])-> Tuple[Dict[Weekday, Dict[Building, List[Employee]]], List[Building]]:
+    # Compute which employee is available on which day
+    weekly_employee_availability = get_weekly_worker_availability(employees)
+ 
+    # Compute how much categorized man power is available each day
+    weekly_capacity = get_weekly_worker_capacity(weekly_employee_availability)
 
-    bd1 = Building("01", Building_Type.COMMERCIAL)
-    bd2 = Building("02", Building_Type.DOUBLE_STORY)
-    bd3 = Building("03", Building_Type.SINGLE_STORY)
-    test_buildings = [bd1, bd2, bd3]
-
-    emp1 = CertifiedSolarInstaller("001", 
-                                   {"Monday": True, "Tuesday": False, "Wednesday": False,
-                                    "Thursday": False,"Friday": True})
-    emp2 = CertifiedSolarInstaller("002", 
-                                   {"Monday": False, "Tuesday": False, "Wednesday": False,
-                                    "Thursday": True,"Friday": True})
-    emp3 = UncertifiedSolarInstaller("003", 
-                                   {"Monday": False, "Tuesday": False, "Wednesday": False,
-                                    "Thursday": False,"Friday": True})
+    # assign buildings to a day and determine the worker requirement for them
+    scheduled_buildings, unschedulable_buildings = \
+        generate_building_workday_assignment(buildings, weekly_capacity)
     
-    test_employees = [emp1, emp2, emp3]
+    # now we need to assign employees to building on a given day to complete the work schedule
+    work_schedule = assign_workers_to_building(scheduled_buildings, weekly_employee_availability)
 
-    print(scheduler(test_buildings, test_employees))
-                
-
-
-    
-
-
-
-
-    
-
+    return work_schedule, unschedulable_buildings

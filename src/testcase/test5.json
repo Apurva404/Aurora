@@ -1,0 +1,110 @@
+{
+    "description" : "Comerical building, 3 certified installers available on variable days, 3 Pending certification installer available all days, 3 laborer available all days. Showcases how installation will be done on the day when requirements can be met and 4 flexible employees are chosen with priortizing laborers, then pending certs and finally certified installers.",
+    "buildings":[
+        {
+            "id" : "BLD01",
+            "type": "Commercial"
+        }
+    ],
+    "employees":[
+        {
+            "id": "EMP001",
+            "type": "Certified Solar Installer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : false,
+                "Wednesday": true,
+                "Thursday": false,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP002",
+            "type": "Certified Solar Installer",
+            "availability": {
+                "Monday" : false,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": false
+            }
+        },
+        {
+            "id": "EMP003",
+            "type": "Certified Solar Installer",
+            "availability": {
+                "Monday" : false,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": false
+            }
+        },
+        {
+            "id": "EMP004",
+            "type": "Pending Certification Solar Installer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP005",
+            "type": "Pending Certification Solar Installer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP006",
+            "type": "Pending Certification Solar Installer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP007",
+            "type": "Laborer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP008",
+            "type": "Laborer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP009",
+            "type": "Laborer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        }
+    ]
+}

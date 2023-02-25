@@ -1,0 +1,44 @@
+{
+    "description" : "Single story building, Only 1 certified installer available on Friday, other workers are available all days.",
+    "buildings":[
+        {
+            "id" : "BLD01",
+            "type": "Single Story"
+        }
+    ],
+    "employees":[
+        {
+            "id": "EMP001",
+            "type": "Certified Solar Installer",
+            "availability": {
+                "Monday" : false,
+                "Tuesday" : false,
+                "Wednesday": false,
+                "Thursday": false,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP002",
+            "type": "Pending Certification Solar Installer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP003",
+            "type": "Laborer",
+            "availability": {
+                "Monday" : true,
+                "Tuesday" : true,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        }
+    ]
+}

@@ -1,4 +1,4 @@
-from constants import Weekday, Certification_Status
+from constants import Weekday
 from typing import Dict
 
 class Employee:
@@ -11,29 +11,28 @@ class Employee:
         # assumes that self's employee availability has been set
         return self.availability
 
-
-class CertifiedSolarInstaller(Employee):
-    
-    def __init__(self, id: str, availability: Dict[Weekday, bool]) -> None:
-        super().__init__(id, availability)
-        self.certification_status = Certification_Status.COMPLETE
-
-
-class UncertifiedSolarInstaller(Employee):
+class CertifiedEmployee(Employee):
     
     def __init__(self, id: str, availability: Dict[Weekday, bool]) -> None:
         super().__init__(id, availability)
 
-
-class Apprentice(UncertifiedSolarInstaller):
+class UncertifiedEmployee(Employee):
     
     def __init__(self, id: str, availability: Dict[Weekday, bool]) -> None:
         super().__init__(id, availability)
-        self.certification_status = Certification_Status.PENDING
 
-
-class Laborer(UncertifiedSolarInstaller):
+class CertifiedSolarInstaller(CertifiedEmployee):
     
     def __init__(self, id: str, availability: Dict[Weekday, bool]) -> None:
         super().__init__(id, availability)
-        self.certification_status = Certification_Status.NA
+
+class PendingCertificationSolarInstaller(UncertifiedEmployee):
+    
+    def __init__(self, id: str, availability: Dict[Weekday, bool]) -> None:
+        super().__init__(id, availability)
+
+class Laborer(UncertifiedEmployee):
+    
+    def __init__(self, id: str, availability: Dict[Weekday, bool]) -> None:
+        super().__init__(id, availability)
+        

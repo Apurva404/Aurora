@@ -1,0 +1,44 @@
+{
+    "description" : "Double story building, 1 certified installer available on Thrusday and Friday, Pending certification installer available from Wednesday to Friday, Laborer is available on Friday. Showcases how Pending certification installer will be deployed if laborer is absent on the first possible work day.",
+    "buildings":[
+        {
+            "id" : "BLD01",
+            "type": "Double Story"
+        }
+    ],
+    "employees":[
+        {
+            "id": "EMP001",
+            "type": "Certified Solar Installer",
+            "availability": {
+                "Monday" : false,
+                "Tuesday" : false,
+                "Wednesday": false,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP002",
+            "type": "Pending Certification Solar Installer",
+            "availability": {
+                "Monday" : false,
+                "Tuesday" : false,
+                "Wednesday": true,
+                "Thursday": true,
+                "Friday": true
+            }
+        },
+        {
+            "id": "EMP003",
+            "type": "Laborer",
+            "availability": {
+                "Monday" : false,
+                "Tuesday" : false,
+                "Wednesday": false,
+                "Thursday": false,
+                "Friday": true
+            }
+        }
+    ]
+}
