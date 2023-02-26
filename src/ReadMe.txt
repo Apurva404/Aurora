@@ -3,7 +3,7 @@ Implementation
 The implemented scheduler is employing a simple greedy approach.
 
 It reads in a list of buildings and constructs a resource requirement map out of it.
-Using the list of employees and their availibility during the week, it constructs another map that depicts avaialble capacity of workers during the entire week.
+Using the list of employees and their availability during the week, it constructs another map that depicts available capacity of workers during the entire week.
 
 The algorithm greedily services buildings on the first day when their requirements are met. To do so, it goes through each day and try to see if that day's available worker capacity can handle the job or not. If yes, then it reserves the resources, otherwise it tries to service the building the next available day.
 

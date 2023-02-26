@@ -14,7 +14,7 @@ def get_weekly_worker_availability(
     """Compute worker availability.
 
     Arrange the data present in individual employee's availibility into
-    a map across which provides easy access to the data, which employees
+    a map which provides easy access to the data, which employees
     are available on a given day. The data is also categorized by employee
     type.
     """
@@ -60,7 +60,7 @@ def get_weekly_worker_capacity(
         ) -> Dict[Weekday, Capacity]:
     """Compute available worker in a week.
 
-    Transform the worker availibility data into capacity of man power
+    Transform the worker availability data into capacity of man power
     available per day of the week
     """
     weekly_capacity = {
